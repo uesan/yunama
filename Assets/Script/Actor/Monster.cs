@@ -3,18 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 enum Kind {slime, bug, lizard, elemental, succubus, dragon, daemon, unknown, brave}
-enum Direct {up, right, down, left}
 
 public class Monster : MonoBehaviour
 {
-    public const int width = 41, height = 17, directionNum = 4;
-    /* xが幅の半分(20.5)から+1ずつ、yが-高さ(17?)から+1ずつ増えていくので、
-     * xはtransformに20.5を足した値を、yはtransformに0.5を足してyの絶対値を用いる
-     */
-    public int[,] tile = new int[width, height];
-    public const int tileOffsetX = width / 2 + 1;
-    public const int tileOffsetY = height;
-
     string monsterName = "Monster";
     /**
      * "kind" show what type of monster.
@@ -23,7 +14,7 @@ public class Monster : MonoBehaviour
     Kind[] feed;
     Kind[] enemy;
     int attackDamage = 0;//攻撃力
-    int health = 0;     //体力
+    int health = 0;     //体力 誤ツルハシ防止のため誕生から0.2秒ぐらいはHPが減らないようにしたい
     int nourish = 0;    //養分
     int magish = 0;     //魔分
     int losehealth = 0; //1秒ごとに失う体力
@@ -34,19 +25,6 @@ public class Monster : MonoBehaviour
     Vector3 target = new Vector3(0, 0, 0);//移動目標
     Vector3 targetDelta = new Vector3(0, 1f, 0);
 
-    void InitTileArrey()
-    {
-        for (int i = 0; i < width; i++)
-        {
-            tile[i, height - 1] = 1;
-            tile[i, 0] = 1;
-        }
-        for (int i = 0; i < height; i++)
-        {
-            tile[width - 1, i] = 1;
-            tile[0, i] = 1;
-        }
-    }
     void Birth()
     {
         //プレハブからインスタンスを生成し、体力や魔分・養分の初期値を決める
@@ -79,11 +57,12 @@ public class Monster : MonoBehaviour
             Debug.Log(tmpy);
             */
 
-            if (/*進行方向に壁があるか*/tile[tmpx, tmpy] == 1)
+            if (/*進行方向に壁があるか*/ControlTile.GetTileState(tmpx, tmpy) == 1)
             {
                 int noWallDirection = 0;
-                int[] aroundTile = { tile[x, y + 1], tile[x + 1, y], tile[x, y - 1], tile[x - 1, y] };
-                for (int i = 0; i < directionNum; i++)
+                int[] aroundTile = { ControlTile.GetTileState(x, y + 1), ControlTile.GetTileState(x + 1, y), ControlTile.GetTileState(x, y - 1), ControlTile.GetTileState(x - 1, y) };
+                for (int i = 0; i < ControlTile.directionNum; i++)
+                    // まわりの通路の数を数える
                     if(aroundTile[i] == 0)
                         noWallDirection++;
 
@@ -92,7 +71,7 @@ public class Monster : MonoBehaviour
                 Direct direct = Direct.up;
                 Debug.Log(moveDirect);
 
-                for (int i = 0,count = 0; i < directionNum; i++)
+                for (int i = 0,count = 0; i < ControlTile.directionNum; i++)
                 {
                     if (aroundTile[i] == 0)
                     {
@@ -111,6 +90,7 @@ public class Monster : MonoBehaviour
 
                 Debug.Log(direct);
 
+                //壁でない移動方向に向かうように目標を変更
                 switch (direct)
                 {
                     case Direct.up:
@@ -128,12 +108,11 @@ public class Monster : MonoBehaviour
                     default:
                         break;
                 }
-
-                Debug.Log(tile[17, 16]);
+                
             }
             target += targetDelta;
-            x = (int)(target.x + tileOffsetX);
-            y = (int)(target.y + tileOffsetY);
+            x = (int)(target.x + ControlTile.tileOffsetX);
+            y = (int)(target.y + ControlTile.tileOffsetY);
 
         }
         this.transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
@@ -148,9 +127,8 @@ public class Monster : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        InitTileArrey();
-        x = (int)(transform.position.x + tileOffsetX);
-        y = (int)(transform.position.y + tileOffsetY);
+        x = (int)(transform.position.x + ControlTile.tileOffsetX);
+        y = (int)(transform.position.y + ControlTile.tileOffsetY);
         target = transform.position;
     }
 

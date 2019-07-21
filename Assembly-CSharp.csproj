@@ -60,8 +60,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Script\Move\Monster.cs" />
-    <Compile Include="Assets\Script\Move\MovingCursor.cs" />
+    <Compile Include="Assets\Script\Actor\Actor.cs" />
+    <Compile Include="Assets\Script\Actor\Monster.cs" />
+    <Compile Include="Assets\Script\Player\Player.cs" />
+    <Compile Include="Assets\Script\Tile\ControlTile.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>C:/Users/kotar/OneDrive/ドキュメント/yunama/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
