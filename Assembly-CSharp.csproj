@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Script\Actor\Actor.cs" />
+    <Compile Include="Assets\Script\Actor\Brave.cs" />
     <Compile Include="Assets\Script\Actor\Monster.cs" />
     <Compile Include="Assets\Script\Player\Player.cs" />
     <Compile Include="Assets\Script\Tile\ControlTile.cs" />

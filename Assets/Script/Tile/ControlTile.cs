@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 enum Direct { up, right, down, left }
-struct TileNourish
+struct TileInfo
 {
     public int state;
     public int nourish;
@@ -14,19 +14,21 @@ struct TileNourish
 
 public class ControlTile : MonoBehaviour
 {
-    public const int width = 41, height = 17, directionNum = 4;
+    public const int WIDTH = 41, HEIGHT = 17, DIRECTIONNUM = 4;
     /* xが幅の半分(20.5)から+1ずつ、yが-高さ(17?)から+1ずつ増えていくので、
      * xはtransformに20.5を足した値を、yはtransformに0.5を足してyの絶対値を用いる
      */
     //private static int[,] tile = new int[width, height];
-    private static TileNourish[,] tile = new TileNourish[width, height];
-    public const int tileOffsetX = width / 2 + 1;
-    public const int tileOffsetY = height;
-    public const int centerX = width / 2;
+    private static TileInfo[,] tile = new TileInfo[WIDTH, HEIGHT];
+    public const int tileOffsetX = WIDTH / 2 + 1;
+    public const int tileOffsetY = HEIGHT;
+    public const int centerX = WIDTH / 2;
     const int firstDigHeight = 3;
     const int firstDigWidth = 2;
     //public Tilemap rockTilemap;
     public TileBase nourish0;
+
+    public static Vector2Int GoalPoint { get; set; } = new Vector2Int(0, 0);
 
     private static Tilemap rockTilemap;
 
@@ -59,12 +61,15 @@ public class ControlTile : MonoBehaviour
         for (int y = tile.GetUpperBound(1) - 1; y >= tile.GetUpperBound(1) - firstDigHeight; y--)
         {
             SetTileState(centerX, y, 0);
-            if(y == tile.GetUpperBound(1) - firstDigHeight)
+            if (y == tile.GetUpperBound(1) - firstDigHeight)
+            {
                 SetTileState(centerX + 1, y, 0);
+                GoalPoint = new Vector2Int(centerX + 1, y);
+            }
         }
     }
 
-    private static void RenderMap(TileNourish[,] map, Tilemap tilemap, TileBase tile)
+    private static void RenderMap(TileInfo[,] map, Tilemap tilemap, TileBase tile)
     {
         //マップをクリアする（重複しないようにする）
         tilemap.ClearAllTiles();
@@ -90,13 +95,18 @@ public class ControlTile : MonoBehaviour
 
     public static bool SetTileState(int width, int height, int setNum)
     {
-        if (width >= ControlTile.width || width < 0 || height >= ControlTile.height || height < 0)
+        if (width >= ControlTile.WIDTH || width < 0 || height >= ControlTile.HEIGHT || height < 0)
         {
             Debug.Log("Worng wid or high");
             return false;
         }
         tile[width, height].state = setNum;
         return true;
+    }
+
+    public static bool IsWall(Vector2Int vector)
+    {
+        return IsWall(vector.x, vector.y);
     }
 
     public static bool IsWall(int x, int y)
@@ -128,9 +138,11 @@ public class ControlTile : MonoBehaviour
         tilemap.SetTile(new Vector3Int(x - tileOffsetX, y - tileOffsetY, 0), null);
     }
 
-    void PrintTile()
+    public delegate int GetSomeState(int x, int y);
+
+    public static void PrintTile(GetSomeState getSome)
     {
-        string[] log = new string[height];
+        string[] log = new string[HEIGHT];
         for (int y = 0; y <= tile.GetUpperBound(1); y++)
             log[y] = "y =" + y.ToString("000") + " ";
 
@@ -140,11 +152,11 @@ public class ControlTile : MonoBehaviour
             for (int x = 0; x <= tile.GetUpperBound(0); x++)
             {
 
-                log[tile.GetUpperBound(1) - y] += GetTileState(x, y).ToString();
+                log[tile.GetUpperBound(1) - y] += getSome(x,y).ToString("000");
 
             }
         }
-        for (int i = 0; i < height; i++)
+        for (int i = 0; i < HEIGHT; i++)
         {
             Debug.Log(log[i]);
         }
@@ -156,7 +168,7 @@ public class ControlTile : MonoBehaviour
     {
         rockTilemap = GameObject.Find("Rock Tilemap").GetComponent(typeof(Tilemap)) as Tilemap;
         InitTileArrey();
-        PrintTile();
+        //PrintTile(GetTileState);
         RenderMap(tile, rockTilemap, nourish0);
     }
 

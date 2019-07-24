@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-enum Kind {slime, bug, lizard, elemental, succubus, dragon, daemon, unknown, brave}
+public enum Kind {slime, bug, lizard, elemental, succubus, dragon, daemon, unknown, brave}
 
 public class Monster : MonoBehaviour
 {
@@ -61,7 +61,7 @@ public class Monster : MonoBehaviour
             {
                 int noWallDirection = 0;
                 int[] aroundTile = { ControlTile.GetTileState(x, y + 1), ControlTile.GetTileState(x + 1, y), ControlTile.GetTileState(x, y - 1), ControlTile.GetTileState(x - 1, y) };
-                for (int i = 0; i < ControlTile.directionNum; i++)
+                for (int i = 0; i < ControlTile.DIRECTIONNUM; i++)
                     // まわりの通路の数を数える
                     if(aroundTile[i] == 0)
                         noWallDirection++;
@@ -69,26 +69,26 @@ public class Monster : MonoBehaviour
                 //壁がない方向のうち１つをランダムに決定
                 int moveDirect = Random.Range(0, noWallDirection);
                 Direct direct = Direct.up;
-                Debug.Log(moveDirect);
+                //Debug.Log(moveDirect);
 
-                for (int i = 0,count = 0; i < ControlTile.directionNum; i++)
+                for (int i = 0,count = 0; i < ControlTile.DIRECTIONNUM; i++)
                 {
                     if (aroundTile[i] == 0)
                     {
                         if (count != moveDirect)
                         {
                             count++;
-                            Debug.Log("count = " + count);
+                            //Debug.Log("count = " + count);
                             continue;
                         }
                     }
                     else continue;
                     direct = (Direct)i;
-                    Debug.Log("i =" + i);
+                    //Debug.Log("i =" + i);
                     break;
                 }
 
-                Debug.Log(direct);
+                //Debug.Log(direct);
 
                 //壁でない移動方向に向かうように目標を変更
                 switch (direct)
