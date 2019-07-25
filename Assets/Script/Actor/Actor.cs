@@ -14,7 +14,11 @@ public abstract class Actor : MonoBehaviour
     public int Health { get; set; } = 0;     //体力 誤ツルハシ防止のため誕生から0.2秒ぐらいはHPが減らないようにしたい
     public int Nourish { get; set; } = 0;    //養分
     public int Magish { get; set; } = 0;     //魔分
-    public float Speed { get; set; } = 5f;   //移動スピード
+    public float Speed { get; set; } = 2f;   //移動スピード
+
+    public Vector3 Target { get; set; } = new Vector3(0, 0, 0);//移動目標
+    public Vector3 TargetDelta { get; set; } = Vector3.up;
+    public Vector2Int PosInt;
 
     // プレハブからインスタンスを生成し、体力や魔分・養分の初期値を決める
     public abstract void Birth();

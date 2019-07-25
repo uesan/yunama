@@ -11,6 +11,8 @@ public class Brave : Actor
     }
 
     public int[,] Route { get; set; } = new int[ControlTile.WIDTH, ControlTile.HEIGHT];
+    public int MaxCross { get; set; } = -1;
+
     public override void Birth()
     {
         int[,] currentRoute = GetTileState();
@@ -19,6 +21,10 @@ public class Brave : Actor
         Route = RouteSearch(currentRoute);
         ControlTile.PrintTile(GetRouteState);
         Debug.Log("Birth()");
+
+        PosInt.x = (int)(transform.position.x + ControlTile.tileOffsetX);
+        PosInt.y = (int)(transform.position.y + ControlTile.tileOffsetY);
+        Target = transform.position;
     }
 
     public override void Attack()
@@ -33,7 +39,46 @@ public class Brave : Actor
 
     public override void Move()
     {
-        throw new System.NotImplementedException();
+        if (this.transform.position == Target)
+        {
+            if (Route[PosInt.x, PosInt.y] == 2)
+            {
+                this.transform.position = Vector3.MoveTowards(transform.position, Target, Speed * Time.deltaTime);
+                return;
+            }
+
+            int crtNum = Route[PosInt.x, PosInt.y];
+            int nextNum = 0;
+            bool maxCrossChange = false;
+            Vector2Int[] nextPos = {Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left};
+            foreach(Vector2Int next in nextPos)
+            {
+                if (Route[PosInt.x + next.x, PosInt.y + next.y] == 2)
+                {
+                    TargetDelta = new Vector3(next.x, next.y, 0);
+                    break;
+                }
+
+                if (Route[PosInt.x + next.x, PosInt.y + next.y] == MaxCross - 1)
+                {
+                    maxCrossChange = true;
+                    TargetDelta = new Vector3(next.x, next.y, 0);
+                }
+
+                if (crtNum < Route[PosInt.x + next.x, PosInt.y + next.y] && Route[PosInt.x + next.x, PosInt.y + next.y] < nextNum  && !maxCrossChange)
+                {
+                    nextNum = Route[PosInt.x + next.x, PosInt.y + next.y];
+                    TargetDelta = new Vector3(next.x, next.y, 0);
+                }
+            }
+            if (maxCrossChange)
+                MaxCross--;
+
+            Target += TargetDelta;
+            PosInt.x = (int)(Target.x + ControlTile.tileOffsetX);
+            PosInt.y = (int)(Target.y + ControlTile.tileOffsetY);
+        }
+        this.transform.position = Vector3.MoveTowards(transform.position, Target, Speed * Time.deltaTime);
     }
 
     public override void Death()
@@ -144,6 +189,7 @@ public class Brave : Actor
 
         return resultRoute;
     }
+
     private Vector2Int GoBack(Vector2Int current, int[,] tile)
     {
         Vector2Int surround = new Vector2Int();
@@ -255,13 +301,16 @@ public class Brave : Actor
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(DelayMethod(10f, Birth));
+        StartCoroutine(DelayMethod(5f, Birth));
         //Invoke("Birth", 3f);
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if(Time.time > 6f)
+        {
+            Move();
+        }
     }
 }

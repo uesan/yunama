@@ -19,7 +19,7 @@ public class Monster : MonoBehaviour
     int magish = 0;     //魔分
     int losehealth = 0; //1秒ごとに失う体力
     int lifespan = 0;   //寿命
-    float speed = 5f;   //移動スピード
+    float speed = 2f;   //移動スピード
     int x, y;
     
     Vector3 target = new Vector3(0, 0, 0);//移動目標

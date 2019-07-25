@@ -152,7 +152,7 @@ public class ControlTile : MonoBehaviour
             for (int x = 0; x <= tile.GetUpperBound(0); x++)
             {
 
-                log[tile.GetUpperBound(1) - y] += getSome(x,y).ToString("000");
+                log[tile.GetUpperBound(1) - y] += getSome(x,y).ToString();
 
             }
         }
